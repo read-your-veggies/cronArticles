@@ -12,7 +12,7 @@ var getUrlsFromNewsAPI = () => {
   return new Promise((resolve, reject) => {
     newsapi.v2.topHeadlines({
       sources: Object.keys(sources).join(','),
-      pageSize: 20,
+      pageSize: 50,
     })
     .then(response => {
       let articles = [];
