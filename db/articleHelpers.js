@@ -1,7 +1,7 @@
 const axios = require('axios');
 const extractor = require('unfluff');
-const Article = require('./src/schemasLambda.js').Article;
-const sources = require('./src/sources.js');
+const Article = require('./schemas.js').Article;
+const sources = require('./sources.js');
 const NEWS_API_KEY = process.env.NEWS_API_KEY
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(NEWS_API_KEY); 
@@ -125,12 +125,5 @@ var scrapeArticles = () => {
   })
 }
 
-exports.handler = () => {
-  return scrapeArticles()
-  .then(res => {
-    return res;
-  })
-  .catch(err => {
-    return err;
-  });
-}
+module.exports = { scrapeArticles, insertArticlesIntoArticlesDb, parseAndDecorateArticle, generateArticles, getUrlsFromNewsAPI}
+
