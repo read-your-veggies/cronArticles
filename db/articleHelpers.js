@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios');
 const extractor = require('unfluff');
 const Article = require('./schemas.js').Article;

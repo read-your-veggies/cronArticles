@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const articleDbConn = require('./index.js').articleDbConn;
+const testDbConn = require('./index.js').testDbConn;
 
 const articleSchema = new Schema({
   url: {type: String, unique: true},
@@ -33,5 +34,6 @@ const articleSchema = new Schema({
 });
 
 const Article = articleDbConn.model('Article', articleSchema);
+const ArticleForTests = testDbConn.model('ArticleForTests', articleSchema);
 
-module.exports = { Article }
+module.exports = { Article, ArticleForTests }
