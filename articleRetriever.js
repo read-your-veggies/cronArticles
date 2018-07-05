@@ -1,27 +1,21 @@
 const axios = require('axios');
 const extractor = require('unfluff');
-const Article = require('./src/schemasLambda.js').Article; // Add this file.  Rewrite the database info.
+const Article = require('./src/schemasLambda.js').Article;
 const sources = require('./src/sources.js');
-const AWS = require('aws-sdk');
 const NEWS_API_KEY = process.env.NEWS_API_KEY
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(NEWS_API_KEY); 
 
-let counter = 0;
-console.log('api key', NEWS_API_KEY)
-
 // fetches articles from news API, outputs [{url: 'washingtonpost.com...', articleStance: -0.5, source: 'The Washington Post}]
 var getUrlsFromNewsAPI = () => {
-  console.log('getting the URLs');
   return new Promise((resolve, reject) => {
     newsapi.v2.topHeadlines({
       sources: Object.keys(sources).join(','),
-      //ultimately this should be 100
-      pageSize: 100,
+      pageSize: 20,
     })
     .then(response => {
       let articles = [];
-      response.articles.forEach(article => {   // OK
+      response.articles.forEach(article => {
         let articleObj = {
           url: article.url,
           articleStance: sources[article.source.id],
@@ -38,13 +32,12 @@ var getUrlsFromNewsAPI = () => {
 }
 
 var generateArticles = (articles) => {
-  console.log('generating articles', articles.length);
   return new Promise((resolve, reject) => {
     var promises = articles.map(article => {
       return parseAndDecorateArticle(article);
     }); 
     Promise.all(promises)
-    .then(articles => {    // OK
+    .then(articles => {
       resolve(articles);
     })
     .catch(err => {
@@ -53,7 +46,7 @@ var generateArticles = (articles) => {
   });
 }
 
-var parseAndDecorateArticle = (article) => {      // OK
+var parseAndDecorateArticle = (article) => {
   return new Promise((resolve, reject) => {
     axios.get(article.url)
     .then(response => {
@@ -63,6 +56,7 @@ var parseAndDecorateArticle = (article) => {      // OK
       article.description = webpage.description;
       article.image = webpage.image;
       article.fullText = webpage.text;
+      article.timestamp = Date.now();
       article.votes = {
         agree: {
           summedUserStance: 0,
@@ -80,60 +74,63 @@ var parseAndDecorateArticle = (article) => {      // OK
           summedUserStance: 0,
           totalVotes: 0,
         },
-        mean: {
-          summedUserStance: 0,
-          totalVotes: 0,
-        },
-        worthyAdversary: {
-          summedUserStance: 0,
-          totalVotes: 0,
-        }
       };
       return article;
     })
     .then(article => {
-      counter++;
-      counter % 10 === 0 ? console.log('article', counter) : null;
+      // counter++;
+      // counter % 10 === 0 ? console.log('article', counter) : null;
       resolve(article);
     })
     .catch(err => {
-      //reject(err);
-      //console.log('error parsing article', article);
+      reject(err);
     })
   });
 }
 
 var insertArticlesIntoArticlesDb = (articles) => {
-  console.log('sending articles to DB');
-  articles.forEach(article => {
+  var promises = articles.map(article => {
     if (article.fullText !== "") {
-      var newArticle = new Article(article);    // OK, but we need to check the db logic
-      newArticle.save(err => {
-        //if (err) console.log(`article already exists in db ${article.url}`);
-      });
+      var newArticle = new Article(article);
+      return newArticle.save()
+      .then(res => {
+        return 'saved article';
+      })
+      .catch(err => {
+        return 'error saving article', err;
+      })
     } else {
-      //console.log('article had no fullText, was not inserted'); 
+      return 'article had no full text, was ignored';
     }
   });
+  return Promise.all(promises)
+  .then(res => {
+    return 'inserted articles into DB';
+  })
+  .catch(err => {
+    return 'error inserting articles into DB', err;
+  })
 }
 
 var scrapeArticles = () => {
-  console.log('Scraping the articles');
-  getUrlsFromNewsAPI()       // OK
+  return getUrlsFromNewsAPI()
   .then(urlList => {
-    return generateArticles(urlList);  // OK
+    return generateArticles(urlList);
   })
   .then(articles => {
-    insertArticlesIntoArticlesDb(articles);  // OK, but need to check db logic.
-    console.log('Articles Inserted');
+    return insertArticlesIntoArticlesDb(articles);
   })
   .catch(err => {
-    console.log('error scraping articles');
+    return err;
   })
 }
 
-exports.handler = (event, context) => {
-  // The event can be an empty object.
-  // The context does not matter.
-  scrapeArticles();
+exports.handler = () => {
+  return scrapeArticles()
+  .then(res => {
+    return res;
+  })
+  .catch(err => {
+    return err;
+  });
 }

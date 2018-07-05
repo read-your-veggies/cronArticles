@@ -11,6 +11,7 @@ const articleSchema = new Schema({
   fullText: String,
   articleStance: Number,
   image: String,
+  timestamp: Number,
   votes: {
     agree: {
       summedUserStance: Number,
@@ -28,19 +29,9 @@ const articleSchema = new Schema({
       summedUserStance: Number,
       totalVotes: Number,
     },
-    mean: {
-      summedUserStance: Number,
-      totalVotes: Number,
-    },
-    worthyAdversary: {
-      summedUserStance: Number,
-      totalVotes: Number,
-    },
   },
 });
 
 const Article = articleDbConn.model('Article', articleSchema);
-
-
 
 module.exports = { Article }
