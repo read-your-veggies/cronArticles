@@ -1,4 +1,3 @@
-require('dotenv').config();
 const axios = require('axios');
 const extractor = require('unfluff');
 const Article = require('./schemas.js').Article;
@@ -12,7 +11,7 @@ var getUrlsFromNewsAPI = () => {
   return new Promise((resolve, reject) => {
     newsapi.v2.topHeadlines({
       sources: Object.keys(sources).join(','),
-      pageSize: 50,
+      pageSize: 20,
     })
     .then(response => {
       let articles = [];
