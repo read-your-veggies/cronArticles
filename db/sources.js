@@ -3,11 +3,11 @@
 module.exports = {
   'the-huffington-post': -1,
   'new-york-magazine': -1,
-  'bloomberg': -0.5,
   'bbc-news': -0.5,
   'the-guardian-uk': -0.5,
   'the-new-york-times': -0.5,
   'the-washington-post': -0.5,
+  'newsweek': -0.5,
   'the-economist': 0,
   'associated-press': 0,
   'the-wall-street-journal': 0.5,
