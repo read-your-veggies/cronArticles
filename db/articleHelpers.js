@@ -2,7 +2,7 @@ const axios = require('axios');
 const extractor = require('unfluff');
 const Article = require('./schemas.js').Article;
 const sources = require('./sources.js');
-const NEWS_API_KEY = 'ac3e99c739ed4fb58c0b6be160947ad8';
+const NEWS_API_KEY = process.env.NEWS_API_KEY
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(NEWS_API_KEY); 
 const articleRedacter = require('./articleRedacter.js');
@@ -11,8 +11,8 @@ const articleRedacter = require('./articleRedacter.js');
 var getUrlsFromNewsAPI = () => {
   return new Promise((resolve, reject) => {
     newsapi.v2.topHeadlines({
-      sources: 'associated-press',
-      pageSize: 5,
+      sources: Object.keys(sources).join(','),
+      pageSize: 20,
     })
     .then(response => {
       let articles = [];
@@ -92,7 +92,6 @@ var parseAndDecorateArticle = (article) => {
 var insertArticlesIntoArticlesDb = (articles) => {
   var promises = articles.map(article => {
     if (article.fullText !== "") {
-      article.fullText = '(AP) ' + article.fullText;
       article.fullText = articleRedacter(article.fullText);
       var newArticle = new Article(article);
       return newArticle.save()
@@ -130,4 +129,3 @@ var scrapeArticles = () => {
 
 module.exports = { scrapeArticles, insertArticlesIntoArticlesDb, parseAndDecorateArticle, generateArticles, getUrlsFromNewsAPI}
 
-scrapeArticles();

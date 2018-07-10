@@ -1,9 +1,9 @@
 const redactPhrase = [
   
   'Huffington Post',
-  'HUFFINGTON'
+  'HUFFINGTON',
   'HuffPost',
-  'HUFFPOST'
+  'HUFFPOST',
   'HuffPo',
   'HUFFPO',
   'huffpo',
@@ -79,7 +79,7 @@ const redactPhrase = [
 module.exports = (article) => {
   let redactedArticle = article;
   redactPhrase.forEach((phrase) => {
-    redactedArticle.replace(phrase, '(redacted)');
+    redactedArticle = redactedArticle.replace(phrase, '(redacted)');
   });
-  return redactPhrase;
+  return redactedArticle;
 }
