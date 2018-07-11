@@ -52,6 +52,7 @@ const redactPhrase = [
   'Associated Press',
   'ASSOCIATED PRESS',
   '(AP)',
+  'AP)',
 
   'Wall Street Journal',
   'wsj',
