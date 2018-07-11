@@ -79,7 +79,7 @@ const redactPhrase = [
 module.exports = (article) => {
   let redactedArticle = article;
   redactPhrase.forEach((phrase) => {
-    redactedArticle = redactedArticle.replace(phrase, '(redacted)');
+    redactedArticle = redactedArticle.replace('/' + phrase + '/g', '(redacted)');
   });
   return redactedArticle;
 }
